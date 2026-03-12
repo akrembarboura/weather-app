@@ -3,43 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>weather app</title>
-   
-<link rel="stylesheet" href="css/style.css">
-
+    <title>Weather App</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="card">
         <div class="search">
             <input type="text" placeholder="Enter city name" spellcheck="false">
-            <button><img src="assets/images/search.png" alt="image of search"></button>
+            <button><img src="assets/images/search.png" alt="search"></button>
         </div>
+
         <div class="error">
-            <p id="error">invali city name</p>
+            <p id="error-msg">⚠️ Invalid city name. Please try again.</p>
         </div>
+
         <div class="weather">
-            <img src="assets/images/rain.png" class="weather-icon" alt="rain.png">
+            <img src="assets/images/rain.png" class="weather-icon" alt="weather icon">
             <h1 class="temp">25°C</h1>
             <h2 class="city">London</h2>
             <p class="description"></p>
             <div class="details">
                 <div class="column">
                     <img src="assets/images/humidity.png" alt="humidity">
-                    <div>
-                        <p class="humidity">78%</p>
-                        <p class="humidity-text">Humidity</p>
-                    </div>
+                    <p class="humidity">78%</p>
+                    <span>Humidity</span>
                 </div>
                 <div class="column">
                     <img src="assets/images/wind.png" alt="wind">
-                    <div>
-                        <p class="wind">12 km/h</p>
-                        <p class="wind-text">Wind Speed</p>
-                    </div>
+                    <p class="wind">12 km/h</p>
+                    <span>Wind Speed</span>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="js/main.js"></script>
 </body>
 </html>

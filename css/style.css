@@ -1,121 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: sans-serif;
 }
-/* CENTER THE APP */
+
 body {
-    background: #222;
+    font-family: 'Outfit', sans-serif;
     min-height: 100vh;
     display: flex;
-    align-items: center;      
-    justify-content: center;  
-    padding: 16px; 
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+    position: relative;
+    overflow: hidden;
 }
-/* VARIABLES */
-:root {
-    --input-bg: #eee5e5;
-    --font-color: #f1f1f1;
-    --button-bg: #a0a7a9;
-    --background-origin: linear-gradient(135deg, #00ffeb, #5b548a);
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+    animation: floatBlob 10s ease-in-out infinite alternate;
 }
-/* CARD */
+body::before {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #00c9ff, #92fe9d);
+    top: -100px;
+    left: -100px;
+}
+body::after {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #f093fb, #f5576c);
+    bottom: -100px;
+    right: -80px;
+    animation-delay: -5s;
+}
+
+@keyframes floatBlob {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.1); }
+}
+
 .card {
     width: 100%;
-    max-width: 470px;
-    background: var(--background-origin);
-    color: var(--font-color);
-    border-radius: 30px;
-    padding: 32px 28px;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 36px 28px 32px;
+    color: #fff;
     text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.15);
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* SEARCH */
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 .search {
-    width: 100%;
     display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .search input {
     flex: 1;
-    height: 52px;
+    height: 50px;
     padding: 0 20px;
-    border: none;
-    border-radius: 30px;
-    background: var(--input-bg);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
     font-size: 15px;
     outline: none;
+    transition: border-color 0.25s, background 0.25s;
+}
+
+.search input::placeholder {
+    color: rgba(255,255,255,0.45);
 }
 
 .search input:focus {
-    outline: 2px solid #e8bd7c;
+    border-color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.15);
 }
 
 .search button {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     border: none;
-    background: var(--button-bg);
+    background: linear-gradient(135deg, #00c9ff, #92fe9d);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 201, 255, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.search button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 201, 255, 0.6);
+}
+
+.search button:active {
+    transform: scale(0.95);
 }
 
 .search button img {
-    width: 16px;
+    width: 18px;
+    filter: brightness(0) invert(1);
 }
 
-/* WEATHER */
+.error {
+    width: 300px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 80, 80, 0.15);
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    color: #ff8a8a;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-6px); }
+    75%       { transform: translateX(6px); }
+}
+
+.weather {
+    display: none;
+    animation: fadeIn 0.5s ease both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 .weather-icon {
-    width: 140px;
-    margin: 20px auto;
+    width: 120px;
+    margin: 8px auto 12px;
+    filter: drop-shadow(0 4px 16px rgba(255,255,255,0.2));
 }
 
 .weather h1 {
-    font-size: clamp(36px, 7vw, 60px);
-    font-weight: 600;
+    font-size: clamp(52px, 14vw, 80px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,0.6));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .weather h2 {
-    font-size: clamp(20px, 5vw, 32px);
-    font-weight: 400;
-    margin-top: -6px;
+    font-size: clamp(18px, 5vw, 26px);
+    font-weight: 300;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-/* DETAILS */
 .details {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     gap: 16px;
-    margin-top: 32px;
+    margin-top: 28px;
 }
 
 .column {
+    flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 16px 10px;
+    transition: background 0.2s;
+}
+
+.column:hover {
+    background: rgba(255,255,255,0.12);
 }
 
 .column img {
-    width: 28px;
+    width: 26px;
+    filter: brightness(0) invert(1) opacity(0.8);
 }
 
-/* MOBILE */
-@media (max-width: 480px) {
-    .details {
-        flex-direction: column;
-        align-items: center;
+.column p {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.column span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+@media (max-width: 420px) {
+    .card {
+        padding: 28px 18px 24px;
+        border-radius: 22px;
     }
-}
-.weather{
-    display:none
-}
-.error{
-    text-align: left;
-    margin-left: 10px;
-    color:red;
-    font-size:18px;
-    margin-bottom:10px;
-    display: none;
+    .details {
+        gap: 10px;
+    }
+    .column {
+        padding: 12px 8px;
+    }
 }
