@@ -1,11 +1,13 @@
 const apiKey = "29a9556d6506441debe7af208c3015cf";
-const apiBaseUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric";
+const apiBaseUrl = "https://api.openweathermap.org/data/2.5";
 
-const searchBox = document.querySelector(".search input");
-const searchBtn = document.querySelector(".search button");
-const weatherIcon = document.querySelector(".weather-icon");
-const weatherDiv = document.querySelector(".weather");
-const errorDiv = document.querySelector(".error");
+const searchBox    = document.querySelector(".search input");
+const searchBtn    = document.querySelector(".search button");
+const weatherIcon  = document.querySelector(".weather-icon");
+const weatherDiv   = document.querySelector(".weather");
+const errorDiv     = document.querySelector(".error");
+const forecastDiv  = document.querySelector(".forecast");
+const forecastList = document.querySelector(".forecast-list");
 
 const weatherIcons = {
     "Clouds":  "assets/images/clouds.png",
@@ -16,53 +18,108 @@ const weatherIcons = {
     "Snow":    "assets/images/snow.png",
 };
 
-//  1. UPDATE UI 
+const weatherEmojis = {
+    "Clouds":  "⛅",
+    "Clear":   "☀️",
+    "Rain":    "🌧️",
+    "Drizzle": "🌦️",
+    "Mist":    "🌫️",
+    "Snow":    "❄️",
+};
+
+// ─── UPDATE CURRENT WEATHER UI ──────────────────
 function updateUI(data) {
-    document.querySelector(".city").innerHTML = data.name;
-    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
-    document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
-    document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
-    document.querySelector(".description").innerHTML =
-        `It's ${data.weather[0].description} in ${data.name}`;
+    document.querySelector(".city").innerHTML        = data.name;
+    document.querySelector(".temp").innerHTML        = Math.round(data.main.temp) + "°C";
+    document.querySelector(".humidity").innerHTML    = data.main.humidity + "%";
+    document.querySelector(".wind").innerHTML        = data.wind.speed + " km/h";
+    document.querySelector(".description").innerHTML = `It's ${data.weather[0].description} in ${data.name}`;
 
-    const condition = data.weather[0].main;
-    weatherIcon.src = weatherIcons[condition] || "assets/images/rain.png";
+    weatherIcon.src = weatherIcons[data.weather[0].main] || "assets/images/rain.png";
 
-    weatherDiv.style.display = "block";
-    errorDiv.style.display = "none";
+    weatherDiv.style.display  = "block";
+    errorDiv.style.display    = "none";
 }
 
-// 2. FETCH WEATHER (url flexible) 
-async function fetchWeather(url) {
+// ─── UPDATE FORECAST UI ─────────────────────────
+function updateForecast(data) {
+    forecastList.innerHTML = "";
+
+    // خذ فقط قراءات اليوم الحالي
+    const today = new Date().toISOString().split("T")[0];
+
+    const todayItems = data.list.filter(item =>
+        item.dt_txt.startsWith(today)
+    );
+
+    // إذا ما في قراءات لليوم (مثلاً وقت متأخر) — خذ أول 8 قراءات
+    const items = todayItems.length > 0 ? todayItems : data.list.slice(0, 8);
+
+    items.forEach(item => {
+        const time      = item.dt_txt.split(" ")[1].slice(0, 5); // "06:00"
+        const temp      = Math.round(item.main.temp);
+        const condition = item.weather[0].main;
+        const emoji     = weatherEmojis[condition] || "🌡️";
+
+        forecastList.innerHTML += `
+            <div class="forecast-item">
+                <span class="forecast-time">${time}</span>
+                <span class="forecast-emoji">${emoji}</span>
+                <span class="forecast-temp">${temp}°C</span>
+                <span class="forecast-desc">${item.weather[0].description}</span>
+            </div>
+        `;
+    });
+
+    forecastDiv.style.display = "block";
+}
+
+// ─── FETCH CURRENT WEATHER ──────────────────────
+async function fetchWeather(url, forecastUrl) {
     try {
-        const response = await fetch(url);
-        if (response.status === 404) {
-            errorDiv.style.display = "flex";
+        const [weatherRes, forecastRes] = await Promise.all([
+            fetch(url),
+            fetch(forecastUrl)
+        ]);
+
+        if (weatherRes.status === 404) {
+            errorDiv.style.display   = "flex";
             weatherDiv.style.display = "none";
+            forecastDiv.style.display = "none";
             return;
         }
 
-        const data = await response.json();
-        updateUI(data);
+        const weatherData  = await weatherRes.json();
+        const forecastData = await forecastRes.json();
+
+        updateUI(weatherData);
+        updateForecast(forecastData);
 
     } catch (error) {
-        errorDiv.style.display = "flex";
+        errorDiv.style.display   = "flex";
         weatherDiv.style.display = "none";
+        forecastDiv.style.display = "none";
     }
 }
 
-//3. SEARCH BY CITY 
+// ─── SEARCH BY CITY ─────────────────────────────
 function checkWeather(city) {
     if (!city.trim()) return;
-    fetchWeather(`${apiBaseUrl}&q=${city}&appid=${apiKey}`);
+    fetchWeather(
+        `${apiBaseUrl}/weather?units=metric&q=${city}&appid=${apiKey}`,
+        `${apiBaseUrl}/forecast?units=metric&q=${city}&appid=${apiKey}`
+    );
 }
 
-// 4. SEARCH BY COORDS 
+// ─── SEARCH BY COORDS ───────────────────────────
 function checkWeatherByCoords(lat, lon) {
-    fetchWeather(`${apiBaseUrl}&lat=${lat}&lon=${lon}&appid=${apiKey}`);
+    fetchWeather(
+        `${apiBaseUrl}/weather?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`,
+        `${apiBaseUrl}/forecast?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`
+    );
 }
 
-// 5. GEOLOCATION ON LOAD 
+// ─── GEOLOCATION ON LOAD ────────────────────────
 window.addEventListener("load", () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -74,8 +131,8 @@ window.addEventListener("load", () => {
     }
 });
 
-//6. EVENTS
-searchBtn.addEventListener("click", () => checkWeather(searchBox.value));
+// ─── EVENTS ─────────────────────────────────────
+searchBtn.addEventListener("click",  () => checkWeather(searchBox.value));
 searchBox.addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkWeather(searchBox.value);
 });

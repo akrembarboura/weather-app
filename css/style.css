@@ -270,3 +270,64 @@ body::after {
         border-radius: 14px;
     }
 }
+/* ─── FORECAST ─── */
+.forecast {
+    display: none;
+    margin-top: 24px;
+    animation: fadeIn 0.5s ease both;
+}
+
+.forecast-title {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.forecast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.forecast-item {
+    display: grid;
+    grid-template-columns: 55px 30px 55px 1fr;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: background 0.2s;
+}
+
+.forecast-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.forecast-time {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+}
+
+.forecast-emoji {
+    font-size: 20px;
+}
+
+.forecast-temp {
+    font-size: 14px;
+    font-weight: 600;
+    color: #92fe9d;
+}
+
+.forecast-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    text-transform: capitalize;
+    text-align: right;
+}
