@@ -10,12 +10,14 @@ body {
     font-family: 'Outfit', sans-serif;
     min-height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 16px;
+
     background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
     position: relative;
-    overflow: hidden;
+     overflow-y: auto;    /* ← يسمح بالـ scroll عمودي */
+    overflow-x: hidden;  /* ← يمنع الـ scroll أفقي */
+    align-items: flex-start;    /* ← عشان الكارد ما تتمركز وتطلع برّا الشاشة */
+    padding: 30px 16px;
 }
 
 body::before,
@@ -51,6 +53,7 @@ body::after {
 
 
 .card {
+    margin: auto;
     width: 100%;
     max-width: 420px;
     background: rgba(255, 255, 255, 0.08);
@@ -270,64 +273,81 @@ body::after {
         border-radius: 14px;
     }
 }
-/* ─── FORECAST ─── */
+
 .forecast {
     display: none;
-    margin-top: 24px;
+    margin-bottom: 20px;
     animation: fadeIn 0.5s ease both;
 }
 
 .forecast-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     color: rgba(255,255,255,0.45);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     text-align: left;
 }
 
 .forecast-list {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;       
+    -ms-overflow-style: none;    
 }
 
+.forecast-list::-webkit-scrollbar {
+    display: none;             
+}
+
+
 .forecast-item {
-    display: grid;
-    grid-template-columns: 55px 30px 55px 1fr;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 10px 14px;
+    gap: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 12px 10px;
+    min-width: 70px;             
+    flex-shrink: 0;             
     transition: background 0.2s;
+    cursor: default;
 }
 
 .forecast-item:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.13);
 }
 
 .forecast-time {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
-    color: rgba(255,255,255,0.9);
+    color: rgba(15, 1, 1, 0.6);
+    white-space: nowrap;
 }
 
 .forecast-emoji {
-    font-size: 20px;
+    font-size: 35px;
 }
 
 .forecast-temp {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     color: #92fe9d;
 }
 
 .forecast-desc {
-    font-size: 12px;
-    color: rgba(255,255,255,0.45);
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
     text-transform: capitalize;
-    text-align: right;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 65px;
 }

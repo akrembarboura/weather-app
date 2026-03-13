@@ -27,7 +27,7 @@ const weatherEmojis = {
     "Snow":    "❄️",
 };
 
-// ─── UPDATE CURRENT WEATHER UI ──────────────────
+
 function updateUI(data) {
     document.querySelector(".city").innerHTML        = data.name;
     document.querySelector(".temp").innerHTML        = Math.round(data.main.temp) + "°C";
@@ -41,18 +41,17 @@ function updateUI(data) {
     errorDiv.style.display    = "none";
 }
 
-// ─── UPDATE FORECAST UI ─────────────────────────
+
 function updateForecast(data) {
     forecastList.innerHTML = "";
 
-    // خذ فقط قراءات اليوم الحالي
+
     const today = new Date().toISOString().split("T")[0];
 
     const todayItems = data.list.filter(item =>
         item.dt_txt.startsWith(today)
     );
 
-    // إذا ما في قراءات لليوم (مثلاً وقت متأخر) — خذ أول 8 قراءات
     const items = todayItems.length > 0 ? todayItems : data.list.slice(0, 8);
 
     items.forEach(item => {
@@ -74,7 +73,7 @@ function updateForecast(data) {
     forecastDiv.style.display = "block";
 }
 
-// ─── FETCH CURRENT WEATHER ──────────────────────
+
 async function fetchWeather(url, forecastUrl) {
     try {
         const [weatherRes, forecastRes] = await Promise.all([
@@ -102,7 +101,7 @@ async function fetchWeather(url, forecastUrl) {
     }
 }
 
-// ─── SEARCH BY CITY ─────────────────────────────
+
 function checkWeather(city) {
     if (!city.trim()) return;
     fetchWeather(
@@ -111,7 +110,7 @@ function checkWeather(city) {
     );
 }
 
-// ─── SEARCH BY COORDS ───────────────────────────
+
 function checkWeatherByCoords(lat, lon) {
     fetchWeather(
         `${apiBaseUrl}/weather?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`,
@@ -119,7 +118,7 @@ function checkWeatherByCoords(lat, lon) {
     );
 }
 
-// ─── GEOLOCATION ON LOAD ────────────────────────
+
 window.addEventListener("load", () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -131,7 +130,6 @@ window.addEventListener("load", () => {
     }
 });
 
-// ─── EVENTS ─────────────────────────────────────
 searchBtn.addEventListener("click",  () => checkWeather(searchBox.value));
 searchBox.addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkWeather(searchBox.value);
