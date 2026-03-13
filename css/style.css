@@ -12,11 +12,11 @@ body {
     display: flex;
     justify-content: center;
 
-    background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+    background: linear-gradient(160deg, #1e3658, #1b333d, #3590e5);
     position: relative;
-     overflow-y: auto;    /* ← يسمح بالـ scroll عمودي */
-    overflow-x: hidden;  /* ← يمنع الـ scroll أفقي */
-    align-items: flex-start;    /* ← عشان الكارد ما تتمركز وتطلع برّا الشاشة */
+     overflow-y: auto;   
+    overflow-x: hidden; 
+    align-items: flex-start;  
     padding: 30px 16px;
 }
 
@@ -56,7 +56,7 @@ body::after {
     margin: auto;
     width: 100%;
     max-width: 420px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(45, 75, 89, 0.08);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.15);
