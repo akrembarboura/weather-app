@@ -8,16 +8,19 @@
 </head>
 <body>
   <div class="card">
+    <div class="theme-toggle">
+        <button id="themeBtn" title="Toggle theme">🌙</button>
+    </div>
+
     <div class="search">
         <input type="text" placeholder="Enter city name" spellcheck="false">
         <button><img src="assets/images/search.png" alt="search"></button>
     </div>
-
+    
     <div class="error">
         <p id="error-msg">⚠️ Invalid city name. Please try again.</p>
     </div>
 
-    
     <div class="forecast">
         <h3 class="forecast-title">Today's Forecast</h3>
         <div class="forecast-list"></div>

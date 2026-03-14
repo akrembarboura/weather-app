@@ -134,3 +134,19 @@ searchBtn.addEventListener("click",  () => checkWeather(searchBox.value));
 searchBox.addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkWeather(searchBox.value);
 });
+// DARK / LIGHT MODE 
+const themeBtn = document.getElementById("themeBtn");
+
+
+const savedTheme = localStorage.getItem("theme") || "dark";
+if (savedTheme === "light") {
+    document.body.classList.add("light");
+    themeBtn.textContent = "☀️";
+}
+
+themeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+    const isLight = document.body.classList.contains("light");
+    themeBtn.textContent = isLight ? "☀️" : "🌙";
+    localStorage.setItem("theme", isLight ? "light" : "dark");
+});
