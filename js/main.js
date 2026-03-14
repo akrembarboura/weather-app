@@ -134,7 +134,7 @@ searchBtn.addEventListener("click",  () => checkWeather(searchBox.value));
 searchBox.addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkWeather(searchBox.value);
 });
-// DARK / LIGHT MODE 
+// DARK && LIGHT MODE 
 const themeBtn = document.getElementById("themeBtn");
 
 

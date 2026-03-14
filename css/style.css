@@ -351,7 +351,7 @@ body::after {
     text-overflow: ellipsis;
     max-width: 65px;
 }
-/* THEME TOGGLE */
+/* THEME TOGGLE LIGHT AND DARK MODE */
 .theme-toggle {
     display: flex;
     justify-content: flex-end;
