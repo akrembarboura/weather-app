@@ -1,0 +1,10 @@
+{
+  "name": "weather-app",
+  "version": "2.0.0",
+  "description": "Modern Meteorological Dashboard with Clean Architecture, Lucide Icons, and Motion Animations",
+  "scripts": {
+    "start": "npx --yes http-server -p 8080 -c-1 -o",
+    "dev": "npx --yes http-server -p 8080 -c-1 -o"
+  },
+  "license": "MIT"
+}

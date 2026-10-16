@@ -1,152 +1,216 @@
-const apiKey = "29a9556d6506441debe7af208c3015cf";
-const apiBaseUrl = "https://api.openweathermap.org/data/2.5";
+/**
+ * @file main.js
+ * @description Application Controller & Bootstrapper (MVC / Flux Controller Pattern).
+ * Connects DOM events to WeatherService, dispatches state transitions to WeatherStore,
+ * and enables manual scrollbar-free scrolling (wheel + drag + animated pagination dots).
+ */
 
-const searchBox    = document.querySelector(".search input");
-const searchBtn    = document.querySelector(".search button");
-const weatherIcon  = document.querySelector(".weather-icon");
-const weatherDiv   = document.querySelector(".weather");
-const errorDiv     = document.querySelector(".error");
-const forecastDiv  = document.querySelector(".forecast");
-const forecastList = document.querySelector(".forecast-list");
+import { API_CONFIG } from "./config/constants.js";
+import { weatherService } from "./services/weatherService.js";
+import { weatherStore } from "./store/weatherStore.js";
+import { motionAnimator } from "./ui/motionAnimator.js";
+import { WeatherView } from "./ui/weatherView.js";
 
-const weatherIcons = {
-    "Clouds":  "assets/images/clouds.png",
-    "Clear":   "assets/images/clear.png",
-    "Rain":    "assets/images/rain.png",
-    "Drizzle": "assets/images/drizzle.png",
-    "Mist":    "assets/images/mist.png",
-    "Snow":    "assets/images/snow.png",
-};
+class WeatherController {
+    constructor(store, service, view) {
+        this.store = store;
+        this.service = service;
+        this.view = view;
 
-const weatherEmojis = {
-    "Clouds":  "⛅",
-    "Clear":   "☀️",
-    "Rain":    "🌧️",
-    "Drizzle": "🌦️",
-    "Mist":    "🌫️",
-    "Snow":    "❄️",
-};
+        this.searchBox = document.querySelector(".search input");
+        this.searchBtn = document.getElementById("searchBtn");
+        this.geoBtn = document.getElementById("geoBtn");
+        this.themeBtn = document.getElementById("themeBtn");
+        this.unitBtnC = document.getElementById("unitBtnC");
+        this.unitBtnF = document.getElementById("unitBtnF");
+        this.recentCitiesList = document.getElementById("recentCitiesList");
+        this.hourlyList = document.querySelector(".forecast-list");
+        this.hourlyPageDots = document.getElementById("hourlyPageDots");
+    }
 
+    init() {
+        // 1. Subscribe Reactive View to Store (Observer Pattern)
+        this.store.subscribe((state) => this.view.render(state));
 
-function updateUI(data) {
-    document.querySelector(".city").innerHTML        = data.name;
-    document.querySelector(".temp").innerHTML        = Math.round(data.main.temp) + "°C";
-    document.querySelector(".humidity").innerHTML    = data.main.humidity + "%";
-    document.querySelector(".wind").innerHTML        = data.wind.speed + " km/h";
-    document.querySelector(".description").innerHTML = `It's ${data.weather[0].description} in ${data.name}`;
+        // 2. Bind User Interface Events
+        this.#bindEvents();
 
-    weatherIcon.src = weatherIcons[data.weather[0].main] || "assets/images/rain.png";
+        // 3. Bind Manual Scroll (Wheel + Drag + Animated Dots) on Hourly Timeline
+        this.#bindHourlyManualScroll();
 
-    weatherDiv.style.display  = "block";
-    errorDiv.style.display    = "none";
-}
+        // 4. Load Initial City Weather
+        this.loadInitialWeather();
+    }
 
+    #bindEvents() {
+        this.searchBtn?.addEventListener("click", () => {
+            motionAnimator.animateButtonPress(this.searchBtn);
+            this.handleSearchSubmit();
+        });
 
-function updateForecast(data) {
-    forecastList.innerHTML = "";
+        this.searchBox?.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                motionAnimator.animateButtonPress(this.searchBtn);
+                this.handleSearchSubmit();
+            }
+        });
 
+        this.geoBtn?.addEventListener("click", () => {
+            motionAnimator.animateButtonPress(this.geoBtn);
+            this.loadGeolocationWeather();
+        });
 
-    const today = new Date().toISOString().split("T")[0];
+        this.themeBtn?.addEventListener("click", () => {
+            motionAnimator.animateButtonPress(this.themeBtn);
+            this.store.toggleTheme();
+        });
 
-    const todayItems = data.list.filter(item =>
-        item.dt_txt.startsWith(today)
-    );
+        this.unitBtnC?.addEventListener("click", () => this.store.setUnit("C"));
+        this.unitBtnF?.addEventListener("click", () => this.store.setUnit("F"));
 
-    const items = todayItems.length > 0 ? todayItems : data.list.slice(0, 8);
+        // Event Delegation Pattern on Recent Cities Bar
+        this.recentCitiesList?.addEventListener("click", (e) => {
+            const chip = e.target.closest(".recent-chip");
+            if (!chip) return;
+            const city = chip.getAttribute("data-city");
+            if (city) {
+                motionAnimator.animateButtonPress(chip);
+                if (this.searchBox) this.searchBox.value = city;
+                this.loadWeatherByCity(city);
+            }
+        });
+    }
 
-    items.forEach(item => {
-        const time      = item.dt_txt.split(" ")[1].slice(0, 5); // "06:00"
-        const temp      = Math.round(item.main.temp);
-        const condition = item.weather[0].main;
-        const emoji     = weatherEmojis[condition] || "🌡️";
+    /**
+     * Enables manual scrolling on Hourly Timeline without a visible scrollbar:
+     * - Mouse wheel vertical scroll translates to smooth horizontal scroll
+     * - Mouse click-and-drag scrolls horizontally
+     * - Animated pagination dots sync with scroll position & can be clicked
+     */
+    #bindHourlyManualScroll() {
+        const list = this.hourlyList;
+        if (!list) return;
 
-        forecastList.innerHTML += `
-            <div class="forecast-item">
-                <span class="forecast-time">${time}</span>
-                <span class="forecast-emoji">${emoji}</span>
-                <span class="forecast-temp">${temp}°C</span>
-                <span class="forecast-desc">${item.weather[0].description}</span>
-            </div>
-        `;
-    });
+        // 1. Mouse wheel manual horizontal scrolling
+        list.addEventListener(
+            "wheel",
+            (e) => {
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    list.scrollBy({ left: e.deltaY * 1.4, behavior: "smooth" });
+                }
+            },
+            { passive: false }
+        );
 
-    forecastDiv.style.display = "block";
-}
+        // 2. Mouse click-and-drag manual scrolling
+        let isDown = false;
+        let startX = 0;
+        let scrollStart = 0;
 
+        list.addEventListener("mousedown", (e) => {
+            isDown = true;
+            list.classList.add("is-dragging");
+            startX = e.pageX - list.offsetLeft;
+            scrollStart = list.scrollLeft;
+        });
 
-async function fetchWeather(url, forecastUrl) {
-    try {
-        const [weatherRes, forecastRes] = await Promise.all([
-            fetch(url),
-            fetch(forecastUrl)
-        ]);
+        window.addEventListener("mouseup", () => {
+            if (!isDown) return;
+            isDown = false;
+            list.classList.remove("is-dragging");
+        });
 
-        if (weatherRes.status === 404) {
-            errorDiv.style.display   = "flex";
-            weatherDiv.style.display = "none";
-            forecastDiv.style.display = "none";
+        list.addEventListener("mousemove", (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - list.offsetLeft;
+            const walk = (x - startX) * 1.3;
+            list.scrollLeft = scrollStart - walk;
+        });
+
+        // 3. Sync animated pagination dots as user scrolls manually
+        list.addEventListener("scroll", () => {
+            const maxScroll = list.scrollWidth - list.clientWidth;
+            if (maxScroll <= 0) return;
+            const progress = list.scrollLeft / maxScroll;
+            const activeIdx = progress > 0.45 ? 1 : 0;
+
+            const dots = this.hourlyPageDots?.querySelectorAll(".hourly-dot");
+            dots?.forEach((dot, idx) => {
+                dot.classList.toggle("active", idx === activeIdx);
+            });
+        });
+
+        // 4. Clicking pagination dots smoothly scrolls to start/end
+        this.hourlyPageDots?.addEventListener("click", (e) => {
+            const dot = e.target.closest(".hourly-dot");
+            if (!dot) return;
+            const page = Number(dot.getAttribute("data-page"));
+            const maxScroll = list.scrollWidth - list.clientWidth;
+            list.scrollTo({
+                left: page === 0 ? 0 : maxScroll,
+                behavior: "smooth",
+            });
+        });
+    }
+
+    handleSearchSubmit() {
+        const query = this.searchBox?.value?.trim();
+        if (!query) return;
+        this.loadWeatherByCity(query);
+    }
+
+    async loadWeatherByCity(city, forceRefresh = false) {
+        this.store.setLoading();
+        try {
+            const data = await this.service.getWeatherByCity(city, forceRefresh);
+            this.store.setWeatherSuccess(data);
+        } catch (err) {
+            if (err.code === "ABORTED") return;
+            this.store.setError(err.message);
+        }
+    }
+
+    loadGeolocationWeather() {
+        if (!navigator.geolocation) {
+            this.loadWeatherByCity(API_CONFIG.DEFAULT_CITY);
             return;
         }
 
-        const weatherData  = await weatherRes.json();
-        const forecastData = await forecastRes.json();
-
-        updateUI(weatherData);
-        updateForecast(forecastData);
-
-    } catch (error) {
-        errorDiv.style.display   = "flex";
-        weatherDiv.style.display = "none";
-        forecastDiv.style.display = "none";
-    }
-}
-
-
-function checkWeather(city) {
-    if (!city.trim()) return;
-    fetchWeather(
-        `${apiBaseUrl}/weather?units=metric&q=${city}&appid=${apiKey}`,
-        `${apiBaseUrl}/forecast?units=metric&q=${city}&appid=${apiKey}`
-    );
-}
-
-
-function checkWeatherByCoords(lat, lon) {
-    fetchWeather(
-        `${apiBaseUrl}/weather?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`,
-        `${apiBaseUrl}/forecast?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`
-    );
-}
-
-
-window.addEventListener("load", () => {
-    if (navigator.geolocation) {
+        this.store.setLoading();
         navigator.geolocation.getCurrentPosition(
-            (pos) => checkWeatherByCoords(pos.coords.latitude, pos.coords.longitude),
-            ()    => checkWeather("Tunis")
+            async (pos) => {
+                try {
+                    const data = await this.service.getWeatherByCoords(
+                        pos.coords.latitude,
+                        pos.coords.longitude
+                    );
+                    this.store.setWeatherSuccess(data);
+                } catch (err) {
+                    if (err.code === "ABORTED") return;
+                    this.loadWeatherByCity(API_CONFIG.DEFAULT_CITY);
+                }
+            },
+            () => {
+                const fallbackCity =
+                    this.store.getState().recentCities?.[0] || API_CONFIG.DEFAULT_CITY;
+                this.loadWeatherByCity(fallbackCity);
+            },
+            { timeout: 5000 }
         );
-    } else {
-        checkWeather("Tunis");
     }
-});
 
-searchBtn.addEventListener("click",  () => checkWeather(searchBox.value));
-searchBox.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") checkWeather(searchBox.value);
-});
-// DARK && LIGHT MODE 
-const themeBtn = document.getElementById("themeBtn");
-
-
-const savedTheme = localStorage.getItem("theme") || "dark";
-if (savedTheme === "light") {
-    document.body.classList.add("light");
-    themeBtn.textContent = "☀️";
+    loadInitialWeather() {
+        const initialCity =
+            this.store.getState().recentCities?.[0] || API_CONFIG.DEFAULT_CITY;
+        this.loadWeatherByCity(initialCity);
+    }
 }
 
-themeBtn.addEventListener("click", () => {
-    document.body.classList.toggle("light");
-    const isLight = document.body.classList.contains("light");
-    themeBtn.textContent = isLight ? "☀️" : "🌙";
-    localStorage.setItem("theme", isLight ? "light" : "dark");
+window.addEventListener("DOMContentLoaded", () => {
+    const view = new WeatherView();
+    const app = new WeatherController(weatherStore, weatherService, view);
+    app.init();
 });
