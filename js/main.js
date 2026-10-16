@@ -214,3 +214,38 @@ window.addEventListener("DOMContentLoaded", () => {
     const app = new WeatherController(weatherStore, weatherService, view);
     app.init();
 });
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   PWA SERVICE WORKER & DESKTOP INSTALL PROMPT
+   ────────────────────────────────────────────────────────────────────────── */
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+}
+
+let deferredInstallPrompt = null;
+const installAppBtn = document.getElementById("installAppBtn");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (installAppBtn) {
+        installAppBtn.hidden = false;
+        window.lucide?.createIcons();
+    }
+});
+
+installAppBtn?.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installAppBtn.hidden = true;
+});
+
+window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    if (installAppBtn) installAppBtn.hidden = true;
+});

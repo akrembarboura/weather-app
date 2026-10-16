@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#06070a">
     <title>Atmosphere — Modern Meteorological Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css?v=7">
     <!-- Lucide Vector Icons Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Motion Animation Library -->
@@ -96,6 +98,11 @@
             </div>
 
             <div class="controls-cluster">
+                <button type="button" id="installAppBtn" class="install-app-btn" title="Install Atmosphere on Desktop" aria-label="Install Atmosphere App" hidden>
+                    <i data-lucide="download" class="inline-xs-icon"></i>
+                    <span>Install App</span>
+                </button>
+
                 <div class="unit-toggle" role="group" aria-label="Temperature Unit">
                     <button type="button" id="unitBtnC" class="unit-btn active">°C</button>
                     <button type="button" id="unitBtnF" class="unit-btn">°F</button>
