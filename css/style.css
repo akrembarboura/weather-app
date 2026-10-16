@@ -1348,3 +1348,97 @@ body:not(.light)[data-weather-accent="snowy"] {
     border-color: transparent;
     box-shadow: 0 4px 14px rgba(56, 189, 248, 0.38);
 }
+
+
+/* Install Guide Modal (Universal Device Support) */
+.install-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(3, 6, 12, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.install-modal-backdrop[hidden] {
+    display: none !important;
+}
+
+.install-modal-card {
+    max-width: 440px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border-color: var(--border-highlight);
+}
+
+.install-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.install-modal-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.install-modal-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+}
+
+.install-modal-brand h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.install-modal-brand p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.install-modal-close {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.install-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.install-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+}
+
+.install-step-item strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.install-step-item p {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+}

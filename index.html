@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#06070a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Atmosphere">
     <title>Atmosphere — Modern Meteorological Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <link rel="stylesheet" href="css/style.css?v=8">
     <!-- Lucide Vector Icons Library -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Motion Animation Library -->
@@ -98,7 +102,7 @@
             </div>
 
             <div class="controls-cluster">
-                <button type="button" id="installAppBtn" class="install-app-btn" title="Install Atmosphere on Desktop" aria-label="Install Atmosphere App" hidden>
+                <button type="button" id="installAppBtn" class="install-app-btn" title="Install Atmosphere on your device" aria-label="Install Atmosphere App">
                     <i data-lucide="download" class="inline-xs-icon"></i>
                     <span>Install App</span>
                 </button>
@@ -255,8 +259,49 @@
                 </section>
             </div>
         </section>
+
+        <!-- Universal Device Install Modal (Fallback for Safari / iOS / Browsers) -->
+        <div class="install-modal-backdrop" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installModalTitle" hidden>
+            <div class="glass-panel install-modal-card">
+                <div class="install-modal-header">
+                    <div class="install-modal-brand">
+                        <img src="assets/favicon.svg" alt="Atmosphere Logo" class="install-modal-logo">
+                        <div>
+                            <h3 id="installModalTitle">Install Atmosphere</h3>
+                            <p>Add to your Desktop or Home Screen for instant access</p>
+                        </div>
+                    </div>
+                    <button type="button" id="closeInstallModalBtn" class="icon-action-btn install-modal-close" aria-label="Close install guide">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="install-steps-list">
+                    <div class="install-step-item">
+                        <i data-lucide="monitor" class="metric-lucide"></i>
+                        <div>
+                            <strong>Desktop (Chrome, Edge, Brave)</strong>
+                            <p>Click the <strong>Install icon</strong> in the right side of your browser's address bar, then click <strong>Install</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="install-step-item">
+                        <i data-lucide="smartphone" class="metric-lucide"></i>
+                        <div>
+                            <strong>iPhone / iPad (Safari)</strong>
+                            <p>Tap the <strong>Share</strong> button at the bottom of Safari, then select <strong>Add to Home Screen</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="install-step-item">
+                        <i data-lucide="tablet-smartphone" class="metric-lucide"></i>
+                        <div>
+                            <strong>Android (Chrome)</strong>
+                            <p>Tap the <strong>⋮ Menu</strong> in the top right and select <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <script type="module" src="js/main.js?v=5"></script>
+    <script type="module" src="js/main.js?v=8"></script>
 </body>
 </html>

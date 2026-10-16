@@ -2,7 +2,7 @@
  * @file main.js
  * @description Application Controller & Bootstrapper (MVC / Flux Controller Pattern).
  * Connects DOM events to WeatherService, dispatches state transitions to WeatherStore,
- * and enables manual scrollbar-free scrolling (wheel + drag + animated pagination dots).
+ * enables manual scrollbar-free scrolling, and handles universal PWA installation.
  */
 
 import { API_CONFIG } from "./config/constants.js";
@@ -215,9 +215,8 @@ window.addEventListener("DOMContentLoaded", () => {
     app.init();
 });
 
-
 /* ──────────────────────────────────────────────────────────────────────────
-   PWA SERVICE WORKER & DESKTOP INSTALL PROMPT
+   UNIVERSAL PWA SERVICE WORKER & DEVICE INSTALLATION FLOW
    ────────────────────────────────────────────────────────────────────────── */
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -227,25 +226,53 @@ if ("serviceWorker" in navigator) {
 
 let deferredInstallPrompt = null;
 const installAppBtn = document.getElementById("installAppBtn");
+const installModal = document.getElementById("installModal");
+const closeInstallModalBtn = document.getElementById("closeInstallModalBtn");
+
+// Hide Install button if already running inside the installed standalone app
+const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+if (isStandalone && installAppBtn) {
+    installAppBtn.hidden = true;
+}
 
 window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    if (installAppBtn) {
+    if (installAppBtn && !isStandalone) {
         installAppBtn.hidden = false;
-        window.lucide?.createIcons();
     }
 });
 
 installAppBtn?.addEventListener("click", async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    installAppBtn.hidden = true;
+    motionAnimator.animateButtonPress(installAppBtn);
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+            deferredInstallPrompt = null;
+            installAppBtn.hidden = true;
+        }
+    } else if (installModal) {
+        installModal.hidden = false;
+        window.lucide?.createIcons();
+    }
+});
+
+closeInstallModalBtn?.addEventListener("click", () => {
+    if (installModal) installModal.hidden = true;
+});
+
+installModal?.addEventListener("click", (e) => {
+    if (e.target === installModal) {
+        installModal.hidden = true;
+    }
 });
 
 window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
     if (installAppBtn) installAppBtn.hidden = true;
+    if (installModal) installModal.hidden = true;
 });
