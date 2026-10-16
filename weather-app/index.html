@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#06070a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Atmosphere">
+    <title>Atmosphere — Modern Meteorological Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css?v=8">
+    <!-- Lucide Vector Icons Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Motion Animation Library -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.min.js"></script>
+</head>
+<body data-weather-accent="default">
+    <main class="app-shell">
+        <!-- Top Bar: Brand, Search, Unit & Theme Controls -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-logo" aria-hidden="true">
+                    <svg class="brand-logo-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="logo-bg" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#0f172a"/>
+                                <stop offset="52%" stop-color="#1e3a5f"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                            <linearGradient id="logo-rim" x1="6" y1="6" x2="58" y2="58" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.85"/>
+                                <stop offset="50%" stop-color="#34d399" stop-opacity="0.45"/>
+                                <stop offset="100%" stop-color="#ffffff" stop-opacity="0.12"/>
+                            </linearGradient>
+                            <radialGradient id="logo-sun" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(24 22) rotate(45) scale(14)">
+                                <stop offset="0%" stop-color="#fef08a"/>
+                                <stop offset="55%" stop-color="#fbbf24"/>
+                                <stop offset="100%" stop-color="#f97316"/>
+                            </radialGradient>
+                            <linearGradient id="logo-orbit" x1="10" y1="42" x2="54" y2="16" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#34d399"/>
+                                <stop offset="60%" stop-color="#38bdf8"/>
+                                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                            </linearGradient>
+                            <linearGradient id="logo-cloud" x1="20" y1="22" x2="48" y2="46" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ffffff"/>
+                                <stop offset="70%" stop-color="#e0f2fe"/>
+                                <stop offset="100%" stop-color="#7dd3fc"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Squircle Base -->
+                        <rect x="2" y="2" width="60" height="60" rx="17" fill="url(#logo-bg)"/>
+                        <rect x="2.75" y="2.75" width="58.5" height="58.5" rx="16.25" stroke="url(#logo-rim)" stroke-width="1.5"/>
+                        <!-- Atmospheric Telemetry Orbit Ring -->
+                        <path class="logo-orbit-arc" d="M11 39C8.5 31 15.5 20 28.5 15.5C41 11 51.5 14.5 53.5 22" stroke="url(#logo-orbit)" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3.5 4"/>
+                        <!-- Solar Rays & Core -->
+                        <g class="logo-sun-group">
+                            <g stroke="#fbbf24" stroke-width="2.3" stroke-linecap="round">
+                                <line x1="24" y1="9" x2="24" y2="12"/>
+                                <line x1="14" y1="13" x2="16.2" y2="15.2"/>
+                                <line x1="10" y1="23" x2="13" y2="23"/>
+                                <line x1="34" y1="13" x2="31.8" y2="15.2"/>
+                            </g>
+                            <circle cx="24" cy="23" r="9.2" fill="url(#logo-sun)"/>
+                        </g>
+                        <!-- Frosted Glass Cloud -->
+                        <path class="logo-cloud-path" d="M22.5 44H43.5C47.9 44 51.5 40.4 51.5 36C51.5 32 48.5 28.6 44.6 28.1C43.1 22.8 38.3 19 32.6 19C26 19 20.5 24.2 20.1 30.7C16.6 31.4 14 34.5 14 38.1C14 41.4 16.6 44 19.9 44H22.5Z" fill="url(#logo-cloud)" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/>
+                        <!-- Wind Stream & Telemetry Pulse Dot -->
+                        <path d="M17.5 50.5H36.5C38.8 50.5 40.5 48.9 40.5 47C40.5 45.2 39 43.8 37.2 43.8" stroke="url(#logo-orbit)" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle class="logo-pulse-dot" cx="46" cy="50.5" r="2" fill="#34d399"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Atmosphere</span>
+                    <span class="cache-badge" id="cacheBadge">
+                        <i data-lucide="radio" class="inline-xs-icon"></i>
+                        <span>Connecting...</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="search-cluster">
+                <div class="search">
+                    <i data-lucide="search" class="search-leading-icon"></i>
+                    <input
+                        type="text"
+                        placeholder="Search city (e.g. Tunis, London, Tokyo)..."
+                        spellcheck="false"
+                        aria-label="Enter city name"
+                    >
+                    <button type="button" id="searchBtn" class="search-submit-btn" title="Search city" aria-label="Search city">
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+
+                <button type="button" id="geoBtn" class="icon-action-btn" title="Use my current location" aria-label="Use my current location">
+                    <i data-lucide="locate-fixed"></i>
+                </button>
+            </div>
+
+            <div class="controls-cluster">
+                <button type="button" id="installAppBtn" class="install-app-btn" title="Install Atmosphere on your device" aria-label="Install Atmosphere App">
+                    <i data-lucide="download" class="inline-xs-icon"></i>
+                    <span>Install App</span>
+                </button>
+
+                <div class="unit-toggle" role="group" aria-label="Temperature Unit">
+                    <button type="button" id="unitBtnC" class="unit-btn active">°C</button>
+                    <button type="button" id="unitBtnF" class="unit-btn">°F</button>
+                </div>
+
+                <div class="theme-toggle">
+                    <button type="button" id="themeBtn" title="Toggle Dark/Light Theme" aria-label="Toggle theme">
+                        <i data-lucide="moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Recent Searches Quick Bar -->
+        <nav class="recent-bar" aria-label="Recent searched cities">
+            <span class="recent-label">
+                <i data-lucide="history" class="inline-xs-icon"></i>
+                Recent
+            </span>
+            <div class="recent-cities-list" id="recentCitiesList"></div>
+        </nav>
+
+        <!-- Error Notification Banner -->
+        <div class="error" id="errorBanner" role="alert">
+            <i data-lucide="alert-triangle" class="error-lucide"></i>
+            <p id="error-msg">Invalid city name. Please try again.</p>
+        </div>
+
+        <!-- Skeleton Loading State -->
+        <div class="skeleton-grid" id="skeletonLoader" aria-hidden="true">
+            <div class="skeleton-card skeleton-hero"></div>
+            <div class="skeleton-card skeleton-forecast"></div>
+        </div>
+
+        <!-- Main Bento Dashboard Grid -->
+        <section class="dashboard-grid" id="dashboardContent">
+            <!-- Left Column: Current Hero + Atmospheric Metrics -->
+            <div class="dashboard-col-primary">
+                <article class="glass-panel weatherHero weather">
+                    <div class="hero-header">
+                        <div class="location-group">
+                            <div class="city-row">
+                                <i data-lucide="map-pin" class="city-pin-icon"></i>
+                                <h2 class="city">Tunis</h2>
+                                <span class="country-badge" id="countryBadge">TN</span>
+                            </div>
+                            <p class="local-time" id="localTime">Loading local time...</p>
+                        </div>
+                        <span class="temp-highlow-pill" id="tempHighLow">H: --° • L: --°</span>
+                    </div>
+
+                    <div class="hero-main">
+                        <div class="hero-temp-block">
+                            <h1 class="temp">25°C</h1>
+                            <p class="description">Clear sky</p>
+                        </div>
+                        <div class="hero-icon-wrap" id="heroIconContainer">
+                            <i data-lucide="sun" class="hero-lucide-icon" data-icon-tone="amber"></i>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Atmospheric Telemetry Bento Grid -->
+                <section class="glass-panel metrics-panel" aria-label="Current weather details">
+                    <div class="panel-header">
+                        <h3 class="panel-title">
+                            <i data-lucide="activity" class="panel-title-icon"></i>
+                            Atmospheric Conditions
+                        </h3>
+                    </div>
+                    <div class="details">
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="thermometer" class="metric-lucide"></i>
+                                <span>Feels Like</span>
+                            </div>
+                            <p id="metricFeelsLike">25°C</p>
+                        </div>
+
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="droplets" class="metric-lucide"></i>
+                                <span>Humidity</span>
+                            </div>
+                            <p class="humidity">78%</p>
+                        </div>
+
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="wind" class="metric-lucide"></i>
+                                <span>Wind Speed</span>
+                            </div>
+                            <p class="wind">12 km/h</p>
+                        </div>
+
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="gauge" class="metric-lucide"></i>
+                                <span>Pressure</span>
+                            </div>
+                            <p id="metricPressure">1015 hPa</p>
+                        </div>
+
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="eye" class="metric-lucide"></i>
+                                <span>Visibility</span>
+                            </div>
+                            <p id="metricVisibility">10.0 km</p>
+                        </div>
+
+                        <div class="column metric-card">
+                            <div class="metric-top">
+                                <i data-lucide="sunrise" class="metric-lucide"></i>
+                                <span>Sun Cycle</span>
+                            </div>
+                            <p id="metricSunTimes" class="metric-compact-val">06:15 / 18:40</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Hourly Timeline + 5-Day Forecast -->
+            <div class="dashboard-col-secondary">
+                <!-- Hourly Forecast Timeline (Next 24h) -->
+                <section class="glass-panel forecast">
+                    <div class="panel-header">
+                        <h3 class="panel-title forecast-title">
+                            <i data-lucide="clock" class="panel-title-icon"></i>
+                            Hourly Timeline (Next 24h)
+                        </h3>
+                        <div class="hourly-page-dots" id="hourlyPageDots" role="tablist" aria-label="Hourly timeline position">
+                            <button type="button" class="hourly-dot active" data-page="0" aria-label="First 12 hours"></button>
+                            <button type="button" class="hourly-dot" data-page="1" aria-label="Next 12 hours"></button>
+                        </div>
+                    </div>
+                    <div class="forecast-list"></div>
+                </section>
+
+                <!-- 5-Day Forecast with Temperature Range Bars -->
+                <section class="glass-panel daily-panel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">
+                            <i data-lucide="calendar-days" class="panel-title-icon"></i>
+                            5-Day Forecast
+                        </h3>
+                        <span class="panel-subtitle">Min / Max range</span>
+                    </div>
+                    <div class="daily-list" id="dailyForecastList"></div>
+                </section>
+            </div>
+        </section>
+
+        <!-- Universal Device Install Modal (Fallback for Safari / iOS / Browsers) -->
+        <div class="install-modal-backdrop" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installModalTitle" hidden>
+            <div class="glass-panel install-modal-card">
+                <div class="install-modal-header">
+                    <div class="install-modal-brand">
+                        <img src="assets/favicon.svg" alt="Atmosphere Logo" class="install-modal-logo">
+                        <div>
+                            <h3 id="installModalTitle">Install Atmosphere</h3>
+                            <p>Add to your Desktop or Home Screen for instant access</p>
+                        </div>
+                    </div>
+                    <button type="button" id="closeInstallModalBtn" class="icon-action-btn install-modal-close" aria-label="Close install guide">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="install-steps-list">
+                    <div class="install-step-item">
+                        <i data-lucide="monitor" class="metric-lucide"></i>
+                        <div>
+                            <strong>Desktop (Chrome, Edge, Brave)</strong>
+                            <p>Click the <strong>Install icon</strong> in the right side of your browser's address bar, then click <strong>Install</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="install-step-item">
+                        <i data-lucide="smartphone" class="metric-lucide"></i>
+                        <div>
+                            <strong>iPhone / iPad (Safari)</strong>
+                            <p>Tap the <strong>Share</strong> button at the bottom of Safari, then select <strong>Add to Home Screen</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="install-step-item">
+                        <i data-lucide="tablet-smartphone" class="metric-lucide"></i>
+                        <div>
+                            <strong>Android (Chrome)</strong>
+                            <p>Tap the <strong>⋮ Menu</strong> in the top right and select <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/main.js?v=8"></script>
+</body>
+</html>

@@ -1,7 +1,8 @@
-const CACHE_NAME = "atmosphere-pwa-v1";
+const CACHE_NAME = "atmosphere-pwa-v3";
 const APP_SHELL = [
     "./",
     "./index.html",
+    "./manifest.json",
     "./css/style.css",
     "./js/main.js",
     "./js/config/constants.js",
@@ -12,6 +13,8 @@ const APP_SHELL = [
     "./js/ui/motionAnimator.js",
     "./js/ui/weatherView.js",
     "./assets/favicon.svg",
+    "./assets/icon-192.png",
+    "./assets/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -36,7 +39,6 @@ self.addEventListener("fetch", (event) => {
     const { request } = event;
     if (request.method !== "GET") return;
 
-    // Network-first for OpenWeatherMap API calls, Cache-fallback for app shell
     if (request.url.includes("api.openweathermap.org")) {
         return;
     }
