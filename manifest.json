@@ -16,14 +16,9 @@
       "purpose": "any maskable"
     },
     {
-      "src": "assets/images/clear.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/images/clouds.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "assets/atmosphere-logo.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon"
     }
   ]
 }
